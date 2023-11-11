@@ -36,17 +36,25 @@ def new_controller():
     Crea una instancia del modelo
     """
     #TODO: Llamar la función del modelo que crea las estructuras de datos
-    pass
+    analyzer= model.new_data_structs()
+    return analyzer
 
 
 # Funciones para la carga de datos
 
-def load_data(control, filename):
+def load_data(analyzer, terremotosfile):
     """
     Carga los datos del reto
     """
     # TODO: Realizar la carga de datos
-    pass
+    terremotosfile = cf.data_dir + terremotosfile
+    input_file = csv.DictReader(open(terremotosfile, encoding="utf-8"),
+                                delimiter=",")
+    for terremoto in input_file:
+        model.add_data(analyzer, terremoto)
+    return analyzer
+
+    
 
 
 # Funciones de ordenamiento

@@ -31,13 +31,17 @@ from DISClib.DataStructures import mapentry as me
 assert cf
 from tabulate import tabulate
 import traceback
-
+default_limit = 1000
+sys.setrecursionlimit(default_limit*1000)
 """
 La vista se encarga de la interacción con el usuario
 Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
+#terremotofile = "temblores-utf8-samll.csv"
+#terremotofile = "temblores-utf8-large.csv"
+
 
 
 def new_controller():
@@ -45,7 +49,9 @@ def new_controller():
         Se crea una instancia del controlador
     """
     #TODO: Llamar la función del controlador donde se crean las estructuras de datos
-    pass
+    control= controller.new_controller()
+
+    return control
 
 
 def print_menu():
@@ -67,7 +73,8 @@ def load_data(control):
     Carga los datos
     """
     #TODO: Realizar la carga de datos
-    pass
+    controller.load_data(control, "temblores-utf8-samll.csv")
+    return control
 
 
 def print_data(control, id):
@@ -157,6 +164,7 @@ if __name__ == "__main__":
         if int(inputs) == 1:
             print("Cargando información de los archivos ....\n")
             data = load_data(control)
+            print(data)
         elif int(inputs) == 2:
             print_req_1(control)
 

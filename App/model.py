@@ -55,17 +55,31 @@ def new_data_structs():
     manera vacía para posteriormente almacenar la información.
     """
     #TODO: Inicializar las estructuras de datos
-    pass
+
+    analyzer = {"terremotos": None,
+                "fechaIndex": None
+                }
+
+    analyzer["terremotos"] = lt.newList("SINGLE_LINKED", compareFechas)
+
+    return analyzer
 
 
 # Funciones para agregar informacion al modelo
 
-def add_data(data_structs, data):
+def add_data(analyzer, terremoto):
     """
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
-    pass
+    lt.addLast(analyzer, terremoto)
+
+
+
+    return analyzer
+
+
+
 
 
 # Funciones para creacion de datos
@@ -76,6 +90,16 @@ def new_data(id, info):
     """
     #TODO: Crear la función para estructurar los datos
     pass
+
+
+
+
+
+
+
+
+
+
 
 
 # Funciones de consulta
@@ -168,6 +192,24 @@ def compare(data_1, data_2):
     """
     #TODO: Crear función comparadora de la lista
     pass
+
+def compareFechas(date1, date2):
+    """
+    Compara dos fechas
+    """
+    if (date1 == date2):
+        return 0
+    elif (date1 > date2):
+        return 1
+    else:
+        return -1
+
+
+
+
+
+
+
 
 # Funciones de ordenamiento
 
