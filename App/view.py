@@ -31,6 +31,7 @@ from DISClib.DataStructures import mapentry as me
 assert cf
 from tabulate import tabulate
 import traceback
+from tabulate import tabulate
 default_limit = 1000
 sys.setrecursionlimit(default_limit*1000)
 """
@@ -39,8 +40,8 @@ Presenta el menu de opciones y por cada seleccion
 se hace la solicitud al controlador para ejecutar la
 operación solicitada
 """
-#terremotofile = "temblores-utf8-samll.csv"
-#terremotofile = "temblores-utf8-large.csv"
+terremotosfile = "Data/temblores-utf8-small.csv"
+#terremotosfile = "Data/temblores-utf8-large.csv"
 
 
 
@@ -73,8 +74,8 @@ def load_data(control):
     Carga los datos
     """
     #TODO: Realizar la carga de datos
-    controller.load_data(control, "temblores-utf8-samll.csv")
-    return control
+    controller.load_data(control, terremotosfile)
+    return control["magIndex"]
 
 
 def print_data(control, id):
@@ -84,28 +85,34 @@ def print_data(control, id):
     #TODO: Realizar la función para imprimir un elemento
     pass
 
-def print_req_1(control):
+def print_req_1(control, ini, fini):
     """
         Función que imprime la solución del Requerimiento 1 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 1
-    pass
+    res= controller.req_1(control, ini, fini)
+    
+    print(tabulate(lt.iterator(res[0])))
+    print(res[1])
 
-
-def print_req_2(control):
+def print_req_2(control,ini, fini):
     """
         Función que imprime la solución del Requerimiento 2 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 2
-    pass
+    res= controller.req_2(control, ini,fini)
+    
+    print(res[0])
+    print(res[1])
 
-
-def print_req_3(control):
+def print_req_3(control, mag_min, prof_max):
     """
         Función que imprime la solución del Requerimiento 3 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 3
-    pass
+    res= controller.req_3(control,mag_min, prof_max )
+    print(tabulate(lt.iterator(res)))
+    
 
 
 def print_req_4(control):
@@ -164,20 +171,26 @@ if __name__ == "__main__":
         if int(inputs) == 1:
             print("Cargando información de los archivos ....\n")
             data = load_data(control)
-            print(data)
         elif int(inputs) == 2:
-            print_req_1(control)
+
+            ini= input(" Desde que fecha desea consultar:   ")
+            fini= input(" Hasta que fecha desea consultar:   ")
+            print_req_1(control, ini, fini)
 
         elif int(inputs) == 3:
-            print_req_2(control)
+            ini= float(input(" Desde que magnitud desea consultar:   "))
+            fini= float(input(" Hasta que magnitud desea consultar:   "))
+            print_req_2(control, ini, fini)
 
         elif int(inputs) == 4:
-            print_req_3(control)
+            mag_min= float(input(" Minimo de magnitud que desea consultar:   "))
+            prof_max= float(input(" Maximo de profundidad que desea consultar:   "))
+            print_req_3(control, mag_min, prof_max)
 
         elif int(inputs) == 5:
             print_req_4(control)
 
-        elif int(inputs) == 6:
+        elif int(inputs) == 6: 
             print_req_5(control)
 
         elif int(inputs) == 7:

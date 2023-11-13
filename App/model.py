@@ -39,8 +39,9 @@ from DISClib.Algorithms.Sorting import insertionsort as ins
 from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
+import datetime
 assert cf
-
+import tabulate 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
 dos listas, una para los videos, otra para las categorias de los mismos.
@@ -56,11 +57,10 @@ def new_data_structs():
     """
     #TODO: Inicializar las estructuras de datos
 
-    analyzer = {"terremotos": None,
-                "fechaIndex": None
-                }
-
-    analyzer["terremotos"] = lt.newList("SINGLE_LINKED", compareFechas)
+    analyzer = {"terremotos" : lt.newList(),
+                "fechaIndex" : om.newMap("BST",MENOR_MAYOR),
+                "magIndex" : om.newMap("BST", MENOR_MAYOR)
+                }         
 
     return analyzer
 
@@ -72,9 +72,30 @@ def add_data(analyzer, terremoto):
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
-    lt.addLast(analyzer, terremoto)
+    terremoto["time"]= datetime.datetime.strptime(terremoto["time"][:16], "%Y-%m-%dT%H:%M")
+    #ANADIR LISTA NORMAL
+    lt.addLast(analyzer["terremotos"], terremoto)
 
+    #ANADIR POR FECHA
+    fecha = terremoto['time']
+ 
+    if om.contains(analyzer["fechaIndex"], fecha):
+        lt.addLast(om.get(analyzer["fechaIndex"],fecha)["value"], terremoto)
+        
+    else:
+        lista_terremotos= lt.newList("SINGLE_LINKED", MENOR_MAYOR)
+        om.put(analyzer["fechaIndex"],fecha, lista_terremotos)
+        lt.addLast(om.get(analyzer["fechaIndex"],fecha)["value"], terremoto)
+    #ANADIR POR MAG
 
+    magnitud= float(terremoto["mag"])
+
+    if om.contains(analyzer["magIndex"], magnitud):
+        lt.addLast(om.get(analyzer["magIndex"], magnitud)["value"], terremoto)
+    else:
+        lista_terremotos= lt.newList("SINGLE_LINKED",MENOR_MAYOR)
+        om.put(analyzer["magIndex"], magnitud, lista_terremotos)
+        lt.addLast(om.get(analyzer["magIndex"],magnitud)["value"], terremoto )
 
     return analyzer
 
@@ -120,28 +141,64 @@ def data_size(data_structs):
     pass
 
 
-def req_1(data_structs):
+def req_1(analyzer, ini, fini):
     """
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    pass
+    ini= datetime.datetime.strptime(ini, "%Y-%m-%dT%H:%M")
+    fini= datetime.datetime.strptime(fini, "%Y-%m-%dT%H:%M")
+    
+    list= om.values(analyzer["fechaIndex"],ini, fini)
+    tamaño_lista= lt.size(list)
+    
+    resu=[list,tamaño_lista]
+    return resu
 
 
-def req_2(data_structs):
+def req_2(analyzer, ini, fin):
     """
     Función que soluciona el requerimiento 2
     """
     # TODO: Realizar el requerimiento 2
-    pass
+    list= om.values(analyzer["magIndex"],ini,fin)
+    tamaño_lista= lt.size(list)
+    resu=[list, tamaño_lista]
+    return resu
 
 
-def req_3(data_structs):
+def req_3(analyzer, mag_min, prof_max):
     """
     Función que soluciona el requerimiento 3
     """
     # TODO: Realizar el requerimiento 3
-    pass
+    mapa_fechas= om.newMap("RBT",MENOR_MAYOR)
+
+    for magnitud in lt.iterator(om.values(analyzer["magIndex"],mag_min, 20)):
+        for x in lt.iterator(magnitud):
+            if float(x["depth"]) <= prof_max:
+                #meter x en el mapa
+                fecha = x['time']
+ 
+                if om.contains(mapa_fechas, fecha):
+                    lt.addLast(om.get(mapa_fechas ,fecha)["value"], x)
+        
+                else:
+                    lista_terremotos= lt.newList("SINGLE_LINKED", MENOR_MAYOR)
+                    om.put(mapa_fechas,fecha, lista_terremotos)
+                    lt.addLast(om.get(mapa_fechas,fecha)["value"], x)
+
+    lista_resp= lt.newList()
+    while lt.size(lista_resp) < 10:
+        llave_max=om.maxKey(mapa_fechas)
+        for x in lt.iterator(om.get(mapa_fechas, llave_max)["value"]):
+       
+            lt.addLast(lista_resp,x)
+        om.deleteMax(mapa_fechas)
+
+
+
+    return lt.subList(lista_resp,8,3)
 
 
 def req_4(data_structs):
@@ -186,14 +243,20 @@ def req_8(data_structs):
 
 # Funciones utilizadas para comparar elementos dentro de una lista
 
-def compare(data_1, data_2):
+def compareDictsFecha(dict1, dict2):
     """
     Función encargada de comparar dos datos
     """
     #TODO: Crear función comparadora de la lista
-    pass
+    if (dict1["time"] == dict2["time"]):
+        return 0
+    elif (dict1["time"] < dict2["time"]):
+        return 1
+    else:
+        return -1
+    return
 
-def compareFechas(date1, date2):
+def MAYOR_MENOR(date1, date2):
     """
     Compara dos fechas
     """
@@ -214,7 +277,7 @@ def compareFechas(date1, date2):
 # Funciones de ordenamiento
 
 
-def sort_criteria(data_1, data_2):
+def MENOR_MAYOR(mag1, mag2):
     """sortCriteria criterio de ordenamiento para las funciones de ordenamiento
 
     Args:
@@ -225,7 +288,13 @@ def sort_criteria(data_1, data_2):
         _type_: _description_
     """
     #TODO: Crear función comparadora para ordenar
-    pass
+    if (mag1 == mag2):
+        return 0
+    elif (mag1 > mag2):
+        return 1
+    else:
+        return -1
+    
 
 
 def sort(data_structs):
@@ -234,3 +303,6 @@ def sort(data_structs):
     """
     #TODO: Crear función de ordenamiento
     pass
+
+
+

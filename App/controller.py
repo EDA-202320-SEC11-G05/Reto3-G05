@@ -46,12 +46,12 @@ def load_data(analyzer, terremotosfile):
     """
     Carga los datos del reto
     """
-    # TODO: Realizar la carga de datos
-    terremotosfile = cf.data_dir + terremotosfile
-    input_file = csv.DictReader(open(terremotosfile, encoding="utf-8"),
+    # TODO: Realizar la carga de datos]
+    archivo_csv = csv.DictReader(open(terremotosfile, encoding="utf-8"),
                                 delimiter=",")
-    for terremoto in input_file:
+    for terremoto in archivo_csv:
         model.add_data(analyzer, terremoto)
+       
     return analyzer
 
     
@@ -77,28 +77,28 @@ def get_data(control, id):
     pass
 
 
-def req_1(control):
+def req_1(control, ini, fini):
     """
     Retorna el resultado del requerimiento 1
     """
     # TODO: Modificar el requerimiento 1
-    pass
+    return model.req_1(control, ini, fini)
 
 
-def req_2(control):
+def req_2(control, ini, fin):
     """
     Retorna el resultado del requerimiento 2
     """
     # TODO: Modificar el requerimiento 2
-    pass
+    return model.req_2(control, ini, fin)
 
 
-def req_3(control):
+def req_3(control, mag_min, prof_max):
     """
     Retorna el resultado del requerimiento 3
     """
     # TODO: Modificar el requerimiento 3
-    pass
+    return model.req_3(control, mag_min, prof_max)
 
 
 def req_4(control):
@@ -177,3 +177,8 @@ def delta_memory(stop_memory, start_memory):
     # de Byte -> kByte
     delta_memory = delta_memory/1024.0
     return delta_memory
+
+
+
+
+
