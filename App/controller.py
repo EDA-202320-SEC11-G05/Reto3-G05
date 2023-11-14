@@ -116,12 +116,12 @@ def req_5(control):
     # TODO: Modificar el requerimiento 5
     pass
 
-def req_6(control):
+def req_6(analyzer,año, lati,long, radio, numero_N_eventos):
     """
     Retorna el resultado del requerimiento 6
     """
     # TODO: Modificar el requerimiento 6
-    pass
+    return model.req_6(analyzer,año, lati,long, radio, numero_N_eventos)
 
 
 def req_7(control):

@@ -42,6 +42,7 @@ from DISClib.Algorithms.Sorting import quicksort as quk
 import datetime
 assert cf
 import tabulate 
+import math
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá
 dos listas, una para los videos, otra para las categorias de los mismos.
@@ -217,12 +218,107 @@ def req_5(data_structs):
     pass
 
 
-def req_6(data_structs):
+def req_6(analyzer,año, lati,long, radio, numero_N_eventos):
     """
     Función que soluciona el requerimiento 6
     """
     # TODO: Realizar el requerimiento 6
-    pass
+    año_del_evento_inio= año+"-01-01T01:01"
+    año_del_evento_inio=datetime.datetime.strptime(año_del_evento_inio, "%Y-%m-%dT%H:%M")
+    año_del_evento_final= año+"-12-31T23:59"
+    año_del_evento_final=datetime.datetime.strptime(año_del_evento_final, "%Y-%m-%dT%H:%M")
+
+    lista_eventos_en_el_año= om.values(analyzer["fechaIndex"],año_del_evento_inio,año_del_evento_final)
+
+    lista_radio_año= lt.newList()
+    mapa_radio_año_ord= om.newMap("RBT",MENOR_MAYOR)
+
+    for x in lt.iterator(lista_eventos_en_el_año):
+        for y in lt.iterator(x):
+            long1= y["long"]
+            latitud1= y["lat"]
+            if radio >= calcular_distancia_tierra(long1, latitud1, long, lati):
+                lt.addLast(lista_radio_año,y)
+
+                fecha = y['time']
+ 
+                if om.contains(mapa_radio_año_ord, fecha):
+                    lt.addLast(om.get(mapa_radio_año_ord ,fecha)["value"], y)
+        
+                else:
+                    lista_terremotos= lt.newList("SINGLE_LINKED", MENOR_MAYOR)
+                    om.put(mapa_radio_año_ord,fecha, lista_terremotos)
+                    lt.addLast(om.get(mapa_radio_año_ord,fecha)["value"], y)
+                
+
+
+
+    evento_mas_sig= None
+    ev_sig= 0
+  
+    for x in lt.iterator(lista_radio_año):
+        if int(x["sig"])> ev_sig:
+            ev_sig= int(x["sig"])
+            evento_mas_sig= x
+    mayores_eve_sig= lt.newList()
+    lista1=om.values(mapa_radio_año_ord,evento_mas_sig["time"],datetime.datetime.strptime("2024-01-01T01:01", "%Y-%m-%dT%H:%M"))
+    for x in lt.iterator(lista1):
+        for y in lt.iterator(x):
+            lt.addLast(mayores_eve_sig,y)
+    lt.removeFirst(mayores_eve_sig)
+    if lt.size(mayores_eve_sig)> numero_N_eventos:
+        mayores_eve_sig= lt.subList(mayores_eve_sig,1,numero_N_eventos)
+
+
+
+    menores_eve_sig= lt.newList()
+    lista2=om.values(mapa_radio_año_ord,datetime.datetime.strptime("1800-01-01T01:01", "%Y-%m-%dT%H:%M"),evento_mas_sig["time"])
+    for x in lt.iterator(lista2):
+        for y in lt.iterator(x):
+            lt.addFirst(menores_eve_sig,y)
+    #lt.removeLast(menores_eve_sig)
+    #if lt.size(menores_eve_sig)>numero_N_eventos:
+        #menores_eve_sig= lt.subList(menores_eve_sig,lt.size(menores_eve_sig)-numero_N_eventos,numero_N_eventos)
+
+
+
+    final=lt.newList()
+
+    for x in lt.iterator(menores_eve_sig):
+        lt.addLast(final,x)
+    for x in lt.iterator(mayores_eve_sig):
+        lt.addLast(final,x)
+    
+
+    
+
+
+
+    return 
+
+
+
+
+
+def calcular_distancia_tierra(long1, latitud1, long2, latitud2):
+    long1 = math.radians(float(long1))
+    latitud1 = math.radians(float(latitud1))
+    long2 = math.radians(float(long2))
+    latitud2 = math.radians(float(latitud2))
+
+    distancia = 2 * math.asin(
+        math.sqrt(
+            math.sin(0.5 * (long2 - long1))**2 +
+            math.cos(long1) * math.cos(long2) * math.sin(0.5 * (latitud2 - latitud1))**2
+        )
+    ) * 6371
+
+    return distancia
+
+
+
+
+
 
 
 def req_7(data_structs):
@@ -250,11 +346,22 @@ def compareDictsFecha(dict1, dict2):
     #TODO: Crear función comparadora de la lista
     if (dict1["time"] == dict2["time"]):
         return 0
+    elif (dict1["time"] > dict2["time"]):
+        return 1
+    else:
+        return -1
+def compareDictsFecha2(dict1, dict2):
+    """
+    Función encargada de comparar dos datos
+    """
+    #TODO: Crear función comparadora de la lista
+    if (dict1["time"] == dict2["time"]):
+        return 0
     elif (dict1["time"] < dict2["time"]):
         return 1
     else:
         return -1
-    return
+    
 
 def MAYOR_MENOR(date1, date2):
     """

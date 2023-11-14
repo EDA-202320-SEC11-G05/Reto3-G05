@@ -131,12 +131,13 @@ def print_req_5(control):
     pass
 
 
-def print_req_6(control):
+def print_req_6(analyzer,año, lati,long, radio, numero_N_eventos):
     """
         Función que imprime la solución del Requerimiento 6 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 6
-    pass
+    res= controller.req_6(analyzer,año, lati,long, radio, numero_N_eventos)
+    print(tabulate(lt.iterator(res)))
 
 
 def print_req_7(control):
@@ -194,7 +195,13 @@ if __name__ == "__main__":
             print_req_5(control)
 
         elif int(inputs) == 7:
-            print_req_6(control)
+            año= input(" Ingrese el año:     ")
+            lati= input("Ingese latitud:        ")
+            long= input("Ingrese longitud:      ")
+            radio= float(input("ingrese radio:      "))
+            numero_N_eventos= int(input("Ingrese numero N de elementos:     "))
+            print_req_6(control,año, lati,long, radio, numero_N_eventos)
+            
 
         elif int(inputs) == 8:
             print_req_7(control)
