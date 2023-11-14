@@ -101,12 +101,12 @@ def req_3(control, mag_min, prof_max):
     return model.req_3(control, mag_min, prof_max)
 
 
-def req_4(control):
+def req_4(analyzer,sig, gap):
     """
     Retorna el resultado del requerimiento 4
     """
     # TODO: Modificar el requerimiento 4
-    pass
+    return model.req_4(analyzer,sig, gap)
 
 
 def req_5(control):

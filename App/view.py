@@ -91,19 +91,49 @@ def print_req_1(control, ini, fini):
     """
     # TODO: Imprimir el resultado del requerimiento 1
     res= controller.req_1(control, ini, fini)
+    print("-----------------------------------------------------------------------")
+    print("-----------------------------------------------------------------------")
+    print("     TOTAL:        "+str(res[0]))
+    print(tabulate(lt.iterator(res[1])))
+    print(tabulate(lt.iterator(res[2])))
     
-    print(tabulate(lt.iterator(res[0])))
-    print(res[1])
 
 def print_req_2(control,ini, fini):
     """
         Función que imprime la solución del Requerimiento 2 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 2
-    res= controller.req_2(control, ini,fini)
+    res= controller.req_2(control,ini, fini)
+    print("-----------------------------------------------------------------------")
+    print("-----------------------------------------------------------------------")
+    print("     TOTAL DIFERENTES:        "+str(res[0]))
+    print("     TOTAL:        "+str(res[1]))
+    for x in lt.iterator(res[3]):
+        if lt.size(x) >6:
+            primeros= lt.subList(x,1,3)
+            ultimos= lt.subList(x,lt.size(x)-2,3)
+            uni= lt.newList()
+            for x in lt.iterator(primeros):
+                lt.addLast(uni,x)
+            for x in lt.iterator(ultimos):
+                lt.addLast(uni,x)
+            print(tabulate(lt.iterator(uni)))
+        else:
+            print(tabulate(lt.iterator(x)))
+    for x in lt.iterator(res[2]):
+        if lt.size(x) >6:
+            primeros= lt.subList(x,1,3)
+            ultimos= lt.subList(x,lt.size(x)-2,3)
+            uni= lt.newList()
+            for x in lt.iterator(primeros):
+                lt.addLast(uni,x)
+            for x in lt.iterator(ultimos):
+                lt.addLast(uni,x)
+            print(tabulate(lt.iterator(uni)))
+        else:
+            print(tabulate(lt.iterator(x)))
     
-    print(res[0])
-    print(res[1])
+    
 
 def print_req_3(control, mag_min, prof_max):
     """
@@ -111,16 +141,25 @@ def print_req_3(control, mag_min, prof_max):
     """
     # TODO: Imprimir el resultado del requerimiento 3
     res= controller.req_3(control,mag_min, prof_max )
-    print(tabulate(lt.iterator(res)))
+    print("-----------------------------------------------------------------------")
+    print("-----------------------------------------------------------------------")
+    print("     TOTAL DIFERENTES:        "+str(res[0]))
+    print("     TOTAL:        "+str(res[1]))
+    print(tabulate(lt.iterator(res[2])))
+    
+
+    
     
 
 
-def print_req_4(control):
+def print_req_4(control,sig, gap):
     """
         Función que imprime la solución del Requerimiento 4 en consola
     """
     # TODO: Imprimir el resultado del requerimiento 4
-    pass
+    res= controller.req_4(control,sig, gap)
+
+    print(tabulate(lt.iterator(res)))
 
 
 def print_req_5(control):
@@ -137,7 +176,10 @@ def print_req_6(analyzer,año, lati,long, radio, numero_N_eventos):
     """
     # TODO: Imprimir el resultado del requerimiento 6
     res= controller.req_6(analyzer,año, lati,long, radio, numero_N_eventos)
-    print(tabulate(lt.iterator(res)))
+
+    #print(tabulate(lt.iterator(res)))
+    print(res)
+    
 
 
 def print_req_7(control):
@@ -189,7 +231,9 @@ if __name__ == "__main__":
             print_req_3(control, mag_min, prof_max)
 
         elif int(inputs) == 5:
-            print_req_4(control)
+            sig= int(input("  Ingrese el sig mínimo:      "))
+            gap= int(input("  Ingrese el gap máximo:      "))
+            print_req_4(control,sig, gap)
 
         elif int(inputs) == 6: 
             print_req_5(control)

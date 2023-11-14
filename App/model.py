@@ -151,9 +151,18 @@ def req_1(analyzer, ini, fini):
     fini= datetime.datetime.strptime(fini, "%Y-%m-%dT%H:%M")
     
     list= om.values(analyzer["fechaIndex"],ini, fini)
+    list_ind= lt.newList()
+    for x in lt.iterator(list):
+        for y in lt.iterator(x):
+            lt.addFirst(list_ind,y)
+
     tamaño_lista= lt.size(list)
+
+    Primeros_3= lt.subList(list_ind,1,3)
+    ultimos_3= lt.subList(list_ind,tamaño_lista-2,3)
     
-    resu=[list,tamaño_lista]
+    resu=[tamaño_lista,Primeros_3,ultimos_3]
+
     return resu
 
 
@@ -162,9 +171,35 @@ def req_2(analyzer, ini, fin):
     Función que soluciona el requerimiento 2
     """
     # TODO: Realizar el requerimiento 2
-    list= om.values(analyzer["magIndex"],ini,fin)
-    tamaño_lista= lt.size(list)
-    resu=[list, tamaño_lista]
+    lista= om.values(analyzer["magIndex"],ini,fin)
+    
+    lista_ind= lt.newList()
+    
+    for x in lt.iterator(lista):
+            
+            for y in lt.iterator(x):
+                lt.addFirst(lista_ind,y)
+            
+            
+    Primeros_3= lt.subList(lista,1,3)
+    for x in lt.iterator(Primeros_3):
+        merg.sort(x,sort_por_fecha_des)
+        if lt.size(x)>6:
+            primeros= lt.subList(x,1,3)
+            ultimos= lt.subList(x,lt.size(x)-2,3)
+            
+        
+
+
+
+    tamaño_lista= lt.size(lista_ind)
+    Consulta_tiene= lt.size(lista)
+    
+    ultimos_3= lt.subList(lista,Consulta_tiene-2,3)
+    resu=[Consulta_tiene,tamaño_lista, Primeros_3, ultimos_3]
+    
+
+
     return resu
 
 
@@ -196,18 +231,39 @@ def req_3(analyzer, mag_min, prof_max):
        
             lt.addLast(lista_resp,x)
         om.deleteMax(mapa_fechas)
+    final= lt.newList()
+    for x in lt.iterator(lt.subList(lista_resp,1,3)):
+        lt.addLast(final,x)
+    for x in lt.iterator(lt.subList(lista_resp,8,3)):
+        lt.addLast(final,x)
+    
+    total_diferents= om.size(mapa_fechas)+10
+    total= om.size(mapa_fechas)+10
+    res=[total_diferents,total,final]
+    return res
 
 
-
-    return lt.subList(lista_resp,8,3)
-
-
-def req_4(data_structs):
+def req_4(analyzer,sig, gap):
     """
     Función que soluciona el requerimiento 4
     """
     # TODO: Realizar el requerimiento 4
-    pass
+    lista= lt.newList()
+    mapa=analyzer["fechaIndex"]
+    while lt.size(lista)< 15:
+        llave_max=om.maxKey(mapa)
+        for x in om.get(mapa, llave_max)["value"]:
+            if int(x["sig"])> sig and int(x["gap"])< gap:
+                lt.addLast(lista,x)
+        mapa= om.deleteMax(mapa)
+
+
+
+    if lt.size(lista)>15:
+        merg.sort(lista, sort_por_fecha_des)
+        lista= lt.subList(lista,1,15)
+    merg.sort(lista, sort_por_fecha_des)
+    return lista
 
 
 def req_5(data_structs):
@@ -260,6 +316,8 @@ def req_6(analyzer,año, lati,long, radio, numero_N_eventos):
         if int(x["sig"])> ev_sig:
             ev_sig= int(x["sig"])
             evento_mas_sig= x
+
+
     mayores_eve_sig= lt.newList()
     lista1=om.values(mapa_radio_año_ord,evento_mas_sig["time"],datetime.datetime.strptime("2024-01-01T01:01", "%Y-%m-%dT%H:%M"))
     for x in lt.iterator(lista1):
@@ -272,30 +330,51 @@ def req_6(analyzer,año, lati,long, radio, numero_N_eventos):
 
 
     menores_eve_sig= lt.newList()
-    lista2=om.values(mapa_radio_año_ord,datetime.datetime.strptime("1800-01-01T01:01", "%Y-%m-%dT%H:%M"),evento_mas_sig["time"])
+    lista2= om.values(mapa_radio_año_ord, datetime.datetime.strptime("2000-01-01T01:01", "%Y-%m-%dT%H:%M"), evento_mas_sig["time"])
+    
     for x in lt.iterator(lista2):
         for y in lt.iterator(x):
-            lt.addFirst(menores_eve_sig,y)
-    #lt.removeLast(menores_eve_sig)
-    #if lt.size(menores_eve_sig)>numero_N_eventos:
-        #menores_eve_sig= lt.subList(menores_eve_sig,lt.size(menores_eve_sig)-numero_N_eventos,numero_N_eventos)
-
+            lt.addLast(menores_eve_sig, y)
 
 
     final=lt.newList()
+    mapa_final= om.newMap("RBT", MENOR_MAYOR)
 
     for x in lt.iterator(menores_eve_sig):
         lt.addLast(final,x)
     for x in lt.iterator(mayores_eve_sig):
         lt.addLast(final,x)
     
+    for x in lt.iterator(final):
+        fecha = x['time']
+ 
+        if om.contains(mapa_final, fecha):
+            lt.addLast(om.get(mapa_final ,fecha)["value"], x)
+        
+        else:
+            lista_terremotos= lt.newList("SINGLE_LINKED", MENOR_MAYOR)
+            om.put(mapa_final,fecha, lista_terremotos)
+            lt.addLast(om.get(mapa_final,fecha)["value"], x)
 
     
 
+    
+    res=om.valueSet(mapa_final)
+    res_ord= lt.newList()
+    for x in lt.iterator(res):
+        for y in lt.iterator(x):
+            lt.addLast(res_ord, y)
+
+    
+    Numero_eventos_en_radio= 0
+    for x in lt.iterator(om.valueSet(mapa_radio_año_ord)) :
+        for y in lt.iterator(x):
+            Numero_eventos_en_radio+=1
 
 
-    return 
 
+    li_res=()
+    return Numero_eventos_en_radio
 
 
 
@@ -413,3 +492,9 @@ def sort(data_structs):
 
 
 
+def sort_por_fecha_asc(data_1, data_2):
+    return data_1["time"] <data_2["time"]
+
+
+def sort_por_fecha_des(data_1, data_2):
+    return data_1["time"] >data_2["time"]
