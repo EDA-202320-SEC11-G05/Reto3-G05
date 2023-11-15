@@ -263,8 +263,3 @@ if __name__ == "__main__":
         else:
             print("Opción errónea, vuelva a elegir.\n")
     sys.exit(0)
-
-
-#   4.674
-#   -74.068
-#   3000.0
