@@ -31,7 +31,13 @@ from DISClib.DataStructures import mapentry as me
 assert cf
 from tabulate import tabulate
 import traceback
-from tabulate import tabulate
+
+
+
+assert cf
+
+import matplotlib.pyplot as plt
+
 default_limit = 1000
 sys.setrecursionlimit(default_limit*1000)
 """
@@ -163,11 +169,20 @@ def print_req_4(control,sig, gap):
 
 
 def print_req_5(control):
-    """
-        Función que imprime la solución del Requerimiento 5 en consola
-    """
-    # TODO: Imprimir el resultado del requerimiento 5
-    pass
+    min_depth = input("Ingrese la profundidad minima: ")
+    min_stations = input("Ingrese la cantidad de estaciones minima: ")
+
+    data, results = controller.req_5(control, min_depth, min_stations)
+
+    print(f"Se encontraron {results} resultados")
+
+    if lt.size(data) < 7:
+        print(tabulate(lt.iterator(data), tablefmt="pretty", headers="keys"))
+    else:
+        print("3 primeros resultados de los 20 más recientes:")
+        print(tabulate(lt.iterator(lt.subList(data, 1, 3)), tablefmt="pretty", headers="keys"))
+        print("3 últimos resultados de los 20 más recientes:")
+        print(tabulate(lt.iterator(lt.subList(data, lt.size(data) - 2, 3)), tablefmt="pretty", headers="keys"))
 
 
 def print_req_6(analyzer,año, lati,long, radio, numero_N_eventos):
@@ -190,8 +205,52 @@ def print_req_7(control):
     """
         Función que imprime la solución del Requerimiento 7 en consola
     """
-    # TODO: Imprimir el resultado del requerimiento 7
-    pass
+    year = input("Ingrese el año a consultar: ")
+    zone = input("Ingrese la region a consultar: ")
+    labels = ["Magnitud", "Profundidad", "Significancia"]
+
+    options = {
+        "Magnitud": "mag",
+        "Profundidad": "depth",
+        "Significancia": "sig"
+    }
+
+    print("Propiedades disponibles:")
+    for i in range(len(labels)):
+        print(f"{i + 1}. {labels[i]}")
+    option = int(input("Ingrese el número de opción: ")) - 1
+    bins = input("Ingrese el número de barras deseadas: ")
+
+    data = controller.req_7(control, year, zone, options[labels[option]], bins)
+
+    if data is None:
+        print("No se encontró información en la región y año ingresados")
+        return
+
+    earthquakes, categories, values = data
+
+    print("Se encontraron", lt.size(earthquakes), "sismos en la región y año ingresados")
+
+    if lt.size(earthquakes) < 7:
+        print(tabulate(lt.iterator(earthquakes), tablefmt="pretty", headers="keys"))
+    else:
+        print("3 primeros resultados:")
+        print(tabulate(lt.iterator(lt.subList(earthquakes, 1, 3)), tablefmt="pretty", headers="keys"))
+        print("3 últimos resultados:")
+        print(tabulate(lt.iterator(lt.subList(earthquakes, lt.size(earthquakes) - 2, 3)), tablefmt="pretty", headers="keys"))
+
+    bars = plt.bar(categories, values)
+    plt.ylabel("# Eventos")
+    plt.xlabel(labels[option])
+    plt.xticks(rotation=90)
+    plt.title(f"Histograma de '{labels[option]}' en '{zone}'")
+    plt.tight_layout()
+
+    for bar, value in zip(bars, values):
+        plt.text(bar.get_x() + bar.get_width() / 2, bar.get_height(),
+                 str(value), ha='center', va='bottom')
+
+    plt.show()
 
 
 def print_req_8(control):

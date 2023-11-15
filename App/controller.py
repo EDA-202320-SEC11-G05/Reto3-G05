@@ -109,12 +109,12 @@ def req_4(analyzer,sig, gap):
     return model.req_4(analyzer,sig, gap)
 
 
-def req_5(control):
+def req_5(control, min_depth, min_stations):
     """
     Retorna el resultado del requerimiento 5
     """
     # TODO: Modificar el requerimiento 5
-    pass
+    return model.req_5(control, float(min_depth), int(min_stations))
 
 def req_6(analyzer,año, lati,long, radio, numero_N_eventos):
     """
@@ -124,12 +124,11 @@ def req_6(analyzer,año, lati,long, radio, numero_N_eventos):
     return model.req_6(analyzer,año, lati,long, radio, numero_N_eventos)
 
 
-def req_7(control):
+def req_7(control, year, zone, option, bins):
     """
     Retorna el resultado del requerimiento 7
     """
-    # TODO: Modificar el requerimiento 7
-    pass
+    return model.req_7(control, int(year), zone, option, int(bins))
 
 
 def req_8(control):

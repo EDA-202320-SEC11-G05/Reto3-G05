@@ -50,7 +50,7 @@ dos listas, una para los videos, otra para las categorias de los mismos.
 
 # Construccion de modelos
 
-
+datesFormat = "%Y-%m-%dT%H:%M:%S.%fZ"
 def new_data_structs():
     """
     Inicializa las estructuras de datos del modelo. Las crea de
@@ -62,6 +62,8 @@ def new_data_structs():
                 "fechaIndex" : om.newMap("BST",MENOR_MAYOR),
                 "magIndex" : om.newMap("BST", MENOR_MAYOR)
                 }         
+    analyzer["earthquakes_by_time_magnitude"] = om.newMap(omaptype="RBT", cmpfunction=compare_desc)
+    analyzer["earthquakes_by_zone_year"] = mp.newMap(numelements=500, maptype="PROBING", loadfactor=0.75)
 
     return analyzer
 
@@ -98,7 +100,119 @@ def add_data(analyzer, terremoto):
         om.put(analyzer["magIndex"], magnitud, lista_terremotos)
         lt.addLast(om.get(analyzer["magIndex"],magnitud)["value"], terremoto )
 
+
+
+
+
+
+    earthquakes_by_time_magnitude = analyzer["earthquakes_by_time_magnitude"]
+    earthquakes_by_zone_year = analyzer["earthquakes_by_zone_year"]
+
+    entry = om.get(earthquakes_by_time_magnitude, terremoto["time"])
+
+    if entry is None:
+        magnitudes = om.newMap(omaptype="BST", cmpfunction=compare_desc)
+        om.put(magnitudes, terremoto["mag"], terremoto)
+        om.put(earthquakes_by_time_magnitude, data["time"], magnitudes)
+    else:
+        entry = om.put(me.getValue(entry), terremoto["mag"], terremoto)
+
+    place_info = terremoto["place"].split(",")
+    zone = place_info[len(place_info) - 1].strip()
+
+    entry = mp.get(earthquakes_by_zone_year, zone)
+
+    if entry is None:
+        years = mp.newMap(numelements=500, maptype="PROBING", loadfactor=0.75)
+        lst = lt.newList(datastructure="SINGLE_LINKED")
+        lt.addLast(lst, terremoto)
+        mp.put(years, terremoto["time"].year.real, lst)
+        mp.put(earthquakes_by_zone_year, zone, years)
+    else:
+        years = me.getValue(entry)
+        lst = mp.get(years, terremoto["time"].year.real)
+        if lst is None:
+            lst = lt.newList(datastructure="SINGLE_LINKED")
+        else:
+            lst = me.getValue(lst)
+        lt.addLast(lst, terremoto)
+        mp.put(years, terremoto["time"].year.real, lst)
+
     return analyzer
+
+def add_earthquake(data_structs, data):
+    """
+    Función para agregar nuevos elementos a la lista
+    """
+
+    """earthquakes_by_time_magnitude = data_structs["earthquakes_by_time_magnitude"]
+    earthquakes_by_zone_year = data_structs["earthquakes_by_zone_year"]
+
+    entry = om.get(earthquakes_by_time_magnitude, data["time"])
+
+    if entry is None:
+        magnitudes = om.newMap(omaptype="BST", cmpfunction=compare_desc)
+        om.put(magnitudes, data["mag"], data)
+        om.put(earthquakes_by_time_magnitude, data["time"], magnitudes)
+    else:
+        entry = om.put(me.getValue(entry), data["mag"], data)
+
+    place_info = data["place"].split(",")
+    zone = place_info[len(place_info) - 1].strip()
+
+    entry = mp.get(earthquakes_by_zone_year, zone)
+
+    if entry is None:
+        years = mp.newMap(numelements=500, maptype="PROBING", loadfactor=0.75)
+        lst = lt.newList(datastructure="SINGLE_LINKED")
+        lt.addLast(lst, data)
+        mp.put(years, data["time"].year.real, lst)
+        mp.put(earthquakes_by_zone_year, zone, years)
+    else:
+        years = me.getValue(entry)
+        lst = mp.get(years, data["time"].year.real)
+        if lst is None:
+            lst = lt.newList(datastructure="SINGLE_LINKED")
+        else:
+            lst = me.getValue(lst)
+        lt.addLast(lst, data)
+        mp.put(years, data["time"].year.real, lst)"""
+
+
+# Funciones para creacion de datos
+
+def create_earthquake(earthquake):
+    earthquake["mag"] = float(earthquake["mag"])
+    earthquake["time"] = datetime.strptime(earthquake["time"], datesFormat).replace(second=0)
+    earthquake["updated"] = datetime.strptime(earthquake["updated"], datesFormat).replace(second=0)
+    earthquake["sig"] = int(earthquake["sig"])
+    earthquake["tsunami"] = bool(int(earthquake["tsunami"]))
+    earthquake["sources"] = earthquake["sources"][1:-1].split("-")
+    earthquake["types"] = earthquake["types"][1:-1].split("-")
+    earthquake["ids"] = earthquake["ids"][1:-1].split("-")
+    if earthquake["gap"] == "":
+        earthquake["gap"] = "Unknown"
+    else:
+        earthquake["gap"] = int(float(earthquake["gap"]))
+    if earthquake["nst"] == "":
+        earthquake["nst"] = 1
+    else:
+        earthquake["nst"] = int(float(earthquake["nst"]))
+    earthquake["long"] = round(float(earthquake["long"]), 3)
+    earthquake["lat"] = round(float(earthquake["lat"]), 3)
+    earthquake["depth"] = float(earthquake["depth"])
+    return earthquake
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -271,12 +385,40 @@ def req_4(analyzer,sig, gap):
     return lista
 
 
-def req_5(data_structs):
+def req_5(data_structs, min_depth, min_stations):
     """
     Función que soluciona el requerimiento 5
     """
-    # TODO: Realizar el requerimiento 5
-    pass
+    selected = lt.newList(datastructure="SINGLE_LINKED")
+
+    magnitudes = om.valueSet(data_structs["earthquakes_by_time_magnitude"])
+
+    results = 0
+
+    for earthquakes in lt.iterator(magnitudes):
+        earthquakes = om.valueSet(earthquakes)
+        for earthquake in lt.iterator(earthquakes):
+            if earthquake["depth"] >= min_depth and earthquake["nst"] >= min_stations:
+                results += 1
+                if lt.size(selected) < 20:
+                    earthquake_data = {}
+                    earthquake_data["Fecha y Hora"] = earthquake["time"]
+                    earthquake_data["Magnitud"] = earthquake["mag"]
+                    earthquake_data["Longitud"] = earthquake["long"]
+                    earthquake_data["Latitud"] = earthquake["lat"]
+                    earthquake_data["Profundidad"] = earthquake["depth"]
+                    earthquake_data["Significancia"] = earthquake["sig"]
+                    earthquake_data["Distancia azimutal"] = earthquake["gap"]
+                    earthquake_data["# Estaciones"] = earthquake["nst"]
+                    earthquake_data["Titulo"] = earthquake["title"]
+                    earthquake_data["Intensidad máxima DYFI"] = earthquake["cdi"]
+                    earthquake_data["Intensidad máxima instrumental"] = earthquake["mmi"]
+                    earthquake_data["Algoritmo de cálculo"] = earthquake["magType"]
+                    earthquake_data["Tipo"] = earthquake["type"]
+                    earthquake_data["Código"] = earthquake["code"]
+                    lt.addLast(selected, earthquake_data)
+
+    return selected, results
 
 
 def req_6(analyzer,año, lati,long, radio, numero_N_eventos):
@@ -400,12 +542,59 @@ def calcular_distancia_tierra(long1, latitud1, long2, latitud2):
 
 
 
-def req_7(data_structs):
-    """
-    Función que soluciona el requerimiento 7
-    """
-    # TODO: Realizar el requerimiento 7
-    pass
+def req_7(data_structs, year, region, property, bins):
+    earthquakes_in_zone = mp.get(data_structs["earthquakes_by_zone_year"], region)
+
+    if earthquakes_in_zone is None:
+        return None
+
+    earthquakes_in_year = mp.get(me.getValue(earthquakes_in_zone), year)
+
+    if earthquakes_in_year is None:
+        return None
+
+    earthquakes_in_year = me.getValue(earthquakes_in_year)
+
+    earthquakes_by_property = om.newMap(omaptype="RBT")
+
+    for earthquake in lt.iterator(earthquakes_in_year):
+        exists = om.get(earthquakes_by_property, earthquake[property])
+        if exists is not None:
+            lst = me.getValue(exists)
+            lt.addLast(lst, earthquake)
+        else:
+            lst = lt.newList(datastructure="SINGLE_LINKED")
+            lt.addLast(lst, earthquake)
+            om.put(earthquakes_by_property, earthquake[property], lst)
+
+    min_property = om.minKey(earthquakes_by_property)
+    max_property = om.maxKey(earthquakes_by_property)
+
+    gap = round((max_property - min_property) / bins, 3)
+
+    categories = []
+    values = []
+
+    current_min = min_property
+
+    for i in range(bins):
+        next = round(current_min + gap, 3)
+        if i == bins - 1:
+            next = max_property
+        categories.append(f"{current_min}-{next}")
+
+        amount = 0
+
+        for lst in lt.iterator(om.values(earthquakes_by_property, current_min, next)):
+            amount += lt.size(lst)
+
+        values.append(amount)
+
+        current_min = next
+
+    merg.sort(earthquakes_in_year, sort_time)
+
+    return earthquakes_in_year, categories, values
 
 
 def req_8(data_structs):
@@ -498,3 +687,11 @@ def sort_por_fecha_asc(data_1, data_2):
 
 def sort_por_fecha_des(data_1, data_2):
     return data_1["time"] >data_2["time"]
+def compare_desc(data_1, data_2):
+    if data_1 > data_2:
+        return -1
+    elif data_1 == data_2:
+        return 0
+    return 1
+def sort_time(data_1, data_2):
+    return data_1["time"] < data_2["time"]
