@@ -176,9 +176,13 @@ def print_req_6(analyzer,año, lati,long, radio, numero_N_eventos):
     """
     # TODO: Imprimir el resultado del requerimiento 6
     res= controller.req_6(analyzer,año, lati,long, radio, numero_N_eventos)
-
-    #print(tabulate(lt.iterator(res)))
-    print(res)
+    print("-----------------------------------------------------------------------")
+    print("-----------------------------------------------------------------------")
+    print("     EVENTO MAS SIGNIFICATIVO:        ")
+    print(res[0])
+    print("     EVENTO CERCA:        ")
+    print(tabulate(lt.iterator(res[1])))
+    
     
 
 
@@ -259,3 +263,8 @@ if __name__ == "__main__":
         else:
             print("Opción errónea, vuelva a elegir.\n")
     sys.exit(0)
+
+
+#   4.674
+#   -74.068
+#   3000.0
