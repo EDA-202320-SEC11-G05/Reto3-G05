@@ -75,13 +75,21 @@ def print_menu():
     print("0- Salir")
 
 
-def load_data(control):
-    """
-    Carga los datos
-    """
+"""def load_data(control):
+    
     #TODO: Realizar la carga de datos
     controller.load_data(control, terremotosfile)
-    return control["magIndex"]
+    return control["magIndex"]"""
+def load_data(control):
+    sizes = ["small", "5pct", "10pct", "20pct", "30pct", "50pct", "80pct", "large"]
+
+    print("Tamaños disponibles:")
+    for size in range(1, len(sizes) + 1):
+        print(f"{size}. {sizes[size - 1]}")
+    size = int(input("Seleccione el tamaño de datos deseado: "))
+
+    data = controller.load_data(control, sizes[size - 1])
+    return data
 
 
 def print_data(control, id):

@@ -42,17 +42,32 @@ def new_controller():
 
 # Funciones para la carga de datos
 
-def load_data(analyzer, terremotosfile):
-    """
-    Carga los datos del reto
-    """
+"""def load_data(analyzer, terremotosfile):
+    
     # TODO: Realizar la carga de datos]
     archivo_csv = csv.DictReader(open(terremotosfile, encoding="utf-8"),
                                 delimiter=",")
     for terremoto in archivo_csv:
         model.add_data(analyzer, terremoto)
        
-    return analyzer
+    return analyzer"""
+def load_data(control, filename):
+    """
+    Carga los datos del reto
+    """
+
+    filename = cf.data_dir + f"temblores-utf8-{filename}.csv"
+
+    print(f"Cargando {filename}")
+
+    inputs = csv.DictReader(open(filename, "r", encoding="utf-8"))
+
+    for earthquake in inputs:
+        earthquake = model.create_earthquake(earthquake)
+        model.add_data(control, earthquake)
+
+    # TODO: Realizar la carga de datos
+    pass
 
     
 

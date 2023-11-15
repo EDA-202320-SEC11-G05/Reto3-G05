@@ -40,6 +40,7 @@ from DISClib.Algorithms.Sorting import selectionsort as se
 from DISClib.Algorithms.Sorting import mergesort as merg
 from DISClib.Algorithms.Sorting import quicksort as quk
 import datetime
+from datetime import datetime
 assert cf
 import tabulate 
 import math
@@ -75,7 +76,7 @@ def add_data(analyzer, terremoto):
     Función para agregar nuevos elementos a la lista
     """
     #TODO: Crear la función para agregar elementos a una lista
-    terremoto["time"]= datetime.datetime.strptime(terremoto["time"][:16], "%Y-%m-%dT%H:%M")
+    #terremoto["time"]= datetime.datetime.strptime(terremoto["time"][:16], "%Y-%m-%dT%H:%M")
     #ANADIR LISTA NORMAL
     lt.addLast(analyzer["terremotos"], terremoto)
 
@@ -113,7 +114,7 @@ def add_data(analyzer, terremoto):
     if entry is None:
         magnitudes = om.newMap(omaptype="BST", cmpfunction=compare_desc)
         om.put(magnitudes, terremoto["mag"], terremoto)
-        om.put(earthquakes_by_time_magnitude, data["time"], magnitudes)
+        om.put(earthquakes_by_time_magnitude, terremoto["time"], magnitudes)
     else:
         entry = om.put(me.getValue(entry), terremoto["mag"], terremoto)
 
@@ -140,12 +141,9 @@ def add_data(analyzer, terremoto):
 
     return analyzer
 
-def add_earthquake(data_structs, data):
-    """
-    Función para agregar nuevos elementos a la lista
-    """
+"""def add_earthquake(data_structs, data):
 
-    """earthquakes_by_time_magnitude = data_structs["earthquakes_by_time_magnitude"]
+    earthquakes_by_time_magnitude = data_structs["earthquakes_by_time_magnitude"]
     earthquakes_by_zone_year = data_structs["earthquakes_by_zone_year"]
 
     entry = om.get(earthquakes_by_time_magnitude, data["time"])
@@ -261,8 +259,8 @@ def req_1(analyzer, ini, fini):
     Función que soluciona el requerimiento 1
     """
     # TODO: Realizar el requerimiento 1
-    ini= datetime.datetime.strptime(ini, "%Y-%m-%dT%H:%M")
-    fini= datetime.datetime.strptime(fini, "%Y-%m-%dT%H:%M")
+    ini= datetime.strptime(ini, "%Y-%m-%dT%H:%M")
+    fini= datetime.strptime(fini, "%Y-%m-%dT%H:%M")
     
     list= om.values(analyzer["fechaIndex"],ini, fini)
     list_ind= lt.newList()
@@ -427,9 +425,9 @@ def req_6(analyzer,año, lati,long, radio, numero_N_eventos):
     """
     # TODO: Realizar el requerimiento 6
     año_del_evento_inio= año+"-01-01T01:01"
-    año_del_evento_inio=datetime.datetime.strptime(año_del_evento_inio, "%Y-%m-%dT%H:%M")
+    año_del_evento_inio=datetime.strptime(año_del_evento_inio, "%Y-%m-%dT%H:%M")
     año_del_evento_final= año+"-12-31T23:59"
-    año_del_evento_final=datetime.datetime.strptime(año_del_evento_final, "%Y-%m-%dT%H:%M")
+    año_del_evento_final=datetime.strptime(año_del_evento_final, "%Y-%m-%dT%H:%M")
 
     lista_eventos_en_el_año= om.values(analyzer["fechaIndex"],año_del_evento_inio,año_del_evento_final)
 
