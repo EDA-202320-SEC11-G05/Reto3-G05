@@ -59,13 +59,12 @@ def new_data_structs():
     """
     #TODO: Inicializar las estructuras de datos
 
-    analyzer = {"terremotos" : lt.newList(),
-                "fechaIndex" : om.newMap("BST",MENOR_MAYOR),
+    analyzer = {"fechaIndex" : om.newMap("BST",MENOR_MAYOR),
                 "magIndex" : om.newMap("BST", MENOR_MAYOR)
                 }         
     analyzer["earthquakes_by_time_magnitude"] = om.newMap(omaptype="RBT", cmpfunction=compare_desc)
     analyzer["earthquakes_by_zone_year"] = mp.newMap(numelements=500, maptype="PROBING", loadfactor=0.75)
-
+   
     return analyzer
 
 
@@ -78,7 +77,6 @@ def add_data(analyzer, terremoto):
     #TODO: Crear la función para agregar elementos a una lista
     #terremoto["time"]= datetime.datetime.strptime(terremoto["time"][:16], "%Y-%m-%dT%H:%M")
     #ANADIR LISTA NORMAL
-    lt.addLast(analyzer["terremotos"], terremoto)
 
     #ANADIR POR FECHA
     fecha = terremoto['time']
@@ -91,7 +89,7 @@ def add_data(analyzer, terremoto):
         om.put(analyzer["fechaIndex"],fecha, lista_terremotos)
         lt.addLast(om.get(analyzer["fechaIndex"],fecha)["value"], terremoto)
     #ANADIR POR MAG
-
+   
     magnitud= float(terremoto["mag"])
 
     if om.contains(analyzer["magIndex"], magnitud):
@@ -102,7 +100,7 @@ def add_data(analyzer, terremoto):
         lt.addLast(om.get(analyzer["magIndex"],magnitud)["value"], terremoto )
 
 
-
+  
 
 
 
@@ -122,7 +120,7 @@ def add_data(analyzer, terremoto):
     zone = place_info[len(place_info) - 1].strip()
 
     entry = mp.get(earthquakes_by_zone_year, zone)
-
+  
     if entry is None:
         years = mp.newMap(numelements=500, maptype="PROBING", loadfactor=0.75)
         lst = lt.newList(datastructure="SINGLE_LINKED")
@@ -138,43 +136,9 @@ def add_data(analyzer, terremoto):
             lst = me.getValue(lst)
         lt.addLast(lst, terremoto)
         mp.put(years, terremoto["time"].year.real, lst)
-
+ 
     return analyzer
 
-"""def add_earthquake(data_structs, data):
-
-    earthquakes_by_time_magnitude = data_structs["earthquakes_by_time_magnitude"]
-    earthquakes_by_zone_year = data_structs["earthquakes_by_zone_year"]
-
-    entry = om.get(earthquakes_by_time_magnitude, data["time"])
-
-    if entry is None:
-        magnitudes = om.newMap(omaptype="BST", cmpfunction=compare_desc)
-        om.put(magnitudes, data["mag"], data)
-        om.put(earthquakes_by_time_magnitude, data["time"], magnitudes)
-    else:
-        entry = om.put(me.getValue(entry), data["mag"], data)
-
-    place_info = data["place"].split(",")
-    zone = place_info[len(place_info) - 1].strip()
-
-    entry = mp.get(earthquakes_by_zone_year, zone)
-
-    if entry is None:
-        years = mp.newMap(numelements=500, maptype="PROBING", loadfactor=0.75)
-        lst = lt.newList(datastructure="SINGLE_LINKED")
-        lt.addLast(lst, data)
-        mp.put(years, data["time"].year.real, lst)
-        mp.put(earthquakes_by_zone_year, zone, years)
-    else:
-        years = me.getValue(entry)
-        lst = mp.get(years, data["time"].year.real)
-        if lst is None:
-            lst = lt.newList(datastructure="SINGLE_LINKED")
-        else:
-            lst = me.getValue(lst)
-        lt.addLast(lst, data)
-        mp.put(years, data["time"].year.real, lst)"""
 
 
 # Funciones para creacion de datos
